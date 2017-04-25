@@ -1,0 +1,27 @@
+{
+  "name": "contactfluxx",
+  "version": "1.0.0",
+  "description": "Application that creates connection between Flux and FullContact",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigdoods/contactfluxx.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bigdoods/contactfluxx/issues"
+  },
+  "homepage": "https://github.com/bigdoods/contactfluxx#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.2",
+    "express-session": "^1.15.2",
+    "flux-sdk-node": "^0.4.8",
+    "fullcontact": "^1.0.0"
+  }
+}
