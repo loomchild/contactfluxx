@@ -1,4 +1,4 @@
-var userProjects, selectedProject, selectedSource, selectedTarget, selectedSourceCompany, selectedTargetCompany, selectedError
+var userProjects, selectedProject, selectedSource, selectedTarget, selectedError, selectedSourceCompany, selectedTargetCompany, selectedErrorCompany
 
 function isLoggedIn() {
   return request('/user')
@@ -55,34 +55,23 @@ function init() {
   isLoggedIn()
     .then((status) => {
       if (status) {
+
         $('.ui.dropdown.project').dropdown({
           onChange: function(id) {
             selectedProject = userProjects.filter(function(p) { return p.id === id })[0]
             fetchKeys()
           }
         })
+
         $('.ui.dropdown.source-keys').dropdown({ //class of both ui and dropbown, using jquery ui
           onChange: function(id) {
             selectedSource = id
           }
         })
+
         $('.ui.dropdown.target-keys').dropdown({ //class of both ui and dropbown, using jquery ui
           onChange: function(id) {
             selectedTarget = id
-          }
-        })
-
-        //selectedSourceCompany,
-        $('.ui.dropdown.source-company-keys').dropdown({ //class of both ui and dropbown, using jquery ui
-          onChange: function(id) {
-            selectedSourceCompany = id
-          }
-        })
-
-        //selectedTargetCompany
-        $('.ui.dropdown.target-company-keys').dropdown({ //class of both ui and dropbown, using jquery ui
-          onChange: function(id) {
-            selectedTargetCompany = id
           }
         })
 
@@ -91,14 +80,34 @@ function init() {
             selectedError = id
           }
         })
+
+        $('.ui.dropdown.source-company-keys').dropdown({ //class of both ui and dropbown, using jquery ui
+          onChange: function(id) {
+            selectedSourceCompany = id
+          }
+        })
+
+        $('.ui.dropdown.target-company-keys').dropdown({ //class of both ui and dropbown, using jquery ui
+          onChange: function(id) {
+            selectedTargetCompany = id
+          }
+        })
+
+        $('.ui.dropdown.error-company-keys').dropdown({ //class of both ui and dropbown, using jquery ui
+          onChange: function(id) {
+            selectedErrorCompany = id
+          }
+        })
+
         $('.ui.button.save').click(() => {
           let data = {
             project: selectedProject.id,
             source: selectedSource,
             dest: selectedTarget,
+            error: selectedError,
             sourceC: selectedSourceCompany,
             destC: selectedTargetCompany,
-            error: selectedError
+            errorC: selectedErrorCompany
           }
           let url = 'https://flux.io/p/' + selectedProject.id
           $('#success a').attr('href', url) //id of success and space means child 'a' element. 'a' element is decendant of success. set the href to value of url
