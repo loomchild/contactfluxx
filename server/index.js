@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 const cookies = require('cookie-parser')
 const crypto = require('crypto')
 const url = require('url')
-// const Queue = require('./queue')
+const Queue = require('./queue')
 const FluxSdk = require('flux-sdk-node')
 const sdk = new FluxSdk(config.flux.id, { clientSecret: config.flux.secret, fluxUrl: config.flux.url });
 let queue
@@ -79,7 +79,7 @@ app.use('/api', (req, res, next) => {
 });
 
 app.post('/api/request', (req, res, next) => {
-  queue = new Queue({sdk: sdk, user: req.user, project: req.body.project, source: req.body.source, dest: req.body.dest, error: req.body.error, credentials: req.session.credentials})
+  queue = new Queue({sdk: sdk, user: req.user, project: req.body.project, source: req.body.source, dest: req.body.dest, sourceC: req.body.sourceC, destC: req.body.destC, error: req.body.error, credentials: req.session.credentials})
   res.status(200).json({success: true})
 })
 

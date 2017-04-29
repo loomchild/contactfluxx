@@ -24,4 +24,4 @@ Provides:
 
 * Flux flow - A visual data flow programming environment that is provided to the end-users to interact with data keys
 * Data Keys - The data tables reference to a single encapsulated piece of data. Also can be called a data cell.
-* Data Table - Flux works on the concept of data tables like excel does.
+* Data Table - Flux uses data tables as a concept for data tables like excel does.
