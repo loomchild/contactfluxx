@@ -1,7 +1,5 @@
 const config = require('../config')
 const FullContact = require('fullcontact')
-const batchPrep = require('./batch-prep')
-const promSeries = require('./promSeries')
 const apiKey = config.apiKey
 const fullcontact = new FullContact(apiKey)
 
@@ -91,44 +89,39 @@ class Q {
               return
             }
 
-            var lists = batchPrep(val)
-
-            var arrayOfFunctions = lists.map(emailBatch => {
-              return function () {
-                return new Promise((resolve, reject) => {
-                  var responses = []
-                  var errors = []
-
-                  fullcontact.multi() // garbage collected
-
-                  emailBatch.forEach(emailAddr => fullcontact.person.email(emailAddr, (err, response) => {
-                    if (err) return errors.push({email: emailAddr, error: err})
-                    delete response.requestId
-                    response.email = emailAddr
-                    responses.push(response)
-                  })
-                )
-
-                  fullcontact.exec((err) => {
-                    if (err) return reject(err)
-                    resolve({responses, errors})
-                  })
+            const responsePs = val.map((email) => {
+              return new Promise((resolve, reject) => {
+                fullcontact.person.email(email, (err, response) => {
+                  if (err) {
+                    resolve({ status: err.status, errorMesssage: err.message, email })
+                  } else {
+                    response.email = email
+                    resolve(response)
+                  }
                 })
-              }
-            })
-
-            promSeries(arrayOfFunctions).then((data) => {
-              var responses = []
-              var errors = []
-
-              data.forEach((dataL) => {
-                responses = responses.concat(dataL.responses)
-                errors = errors.concat(dataL.errors)
               })
-
-              this.dt.table.getCell(this.destId).update({value: responses})
-              this.dt.table.getCell(this.errorId).update({value: errors})
             })
+
+            Promise.all(responsePs)
+              .then((rawResponses) => {
+                const {
+                 responses,
+                 errors
+                } = rawResponses.reduce((acc, response) => {
+                  delete response.requestId
+                  if (response.status !== 200) {
+                    acc.errors.push(response)
+                  } else if (response.status === 202) {
+                    acc.errors.push(response)
+                  } else {
+                    acc.responses.push(response)
+                  }
+                  return acc
+                }, {responses: [], errors: []})
+
+                this.dt.table.getCell(this.destId).update({value: responses})
+                this.dt.table.getCell(this.errorId).update({value: errors})
+              })
           }
         })
     } else if (msg.type === 'CELL_MODIFIED' && msg.body.label === this.sourceC) {
