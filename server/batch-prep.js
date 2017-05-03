@@ -1,16 +1,14 @@
 module.exports = function (list) {
-  var listLength = list.length
   var chunk = 20
-  var title = -1
+  var chunkI = -1
   var listOfLists = []
 
   list.forEach((item, index) => {
-    if(index%chunk === 0)
-    {
-      title++
+    if (index % chunk === 0) {
+      chunkI++
       listOfLists.push([])
     }
-    listOfLists[title].push(item)
-  } )
+    listOfLists[chunkI].push(item)
+  })
   return listOfLists
 }

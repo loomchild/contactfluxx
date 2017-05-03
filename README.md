@@ -25,3 +25,9 @@ Provides:
 * Flux flow - A visual data flow programming environment that is provided to the end-users to interact with data keys
 * Data Keys - The data tables reference to a single encapsulated piece of data. Also can be called a data cell.
 * Data Table - Flux uses data tables as a concept for data tables like excel does.
+
+### Get from another API the eircode
+
+If a company does not have an associated Eircode, run a search against autoaddress so that it will take the Eircode and repopulate the response "postcode" field.
+First, we need to check if the address country is Irish, in organization/contactInfo/addresses/{for each}, if so, send get request with concat(addressLine1 + addressLine2).
+Return to a GUI, the result for the user to select. Allow user select "done", when "done" update the organization/contactInfo/addresses/{address #}/postalCode field, then return to flux the result.  
