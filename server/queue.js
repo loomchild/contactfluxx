@@ -1,9 +1,9 @@
 const config = require('../config')
-const promSeries = require('./promSeries')
 const FullContact = require('fullcontact')
+const batchPrep = require('./batch-prep')
+const promSeries = require('./promSeries')
 const apiKey = config.apiKey
 const fullcontact = new FullContact(apiKey)
-const batchPrep = require('./batch-prep')
 
 class Q {
   constructor ({sdk, credentials, project, source, dest, error, sourceC, destC, errorC}) {
@@ -103,6 +103,8 @@ class Q {
 
                   emailBatch.forEach(emailAddr => fullcontact.person.email(emailAddr, (err, response) => {
                     if (err) return errors.push({email: emailAddr, error: err})
+                    delete response.requestId
+                    response.email = emailAddr
                     responses.push(response)
                   })
                 )
@@ -139,44 +141,40 @@ class Q {
               this.dt.table.getCell(this.errorCId).update({value: 'Please enter valid JSON Array'})
               return
             }
-            var lists = batchPrep(valC)
 
-            var arrayOfFunctions = lists.map(companyBatch => {
-              return function () {
-                return new Promise((resolve, reject) => {
-                  var responses = []
-                  var errors = []
-
-                  fullcontact.multi()
-
-                  companyBatch.forEach(companyAddr => fullcontact.company.domain(companyAddr, (err, response) => {
-                    if (err) return errors.push({domain: companyAddr, error: err})
-                  //  if else (response.status === 202) return errors.push({domain:companyAddr , message: "try again in 2 minutes - fullContact is searching the web for details"})
-
-                    responses.push(response)
-                  })
-                )
-
-                  fullcontact.exec((err) => {
-                    if (err) return reject(err)
-                    resolve({responses, errors})
-                  })
+            const responsePs = valC.map((companyAddr) => {
+              return new Promise((resolve, reject) => {
+                fullcontact.company.domain(companyAddr, (err, response) => {
+                  if (err) {
+                    resolve({ status: err.status, errorMessage: err.message, domain: companyAddr })
+                  } else {
+                    response.domain = companyAddr
+                    resolve(response)
+                  }
                 })
-              }
-            })
-
-            promSeries(arrayOfFunctions).then((dataC) => {
-              var responses = []
-              var errors = []
-
-              dataC.forEach((data) => {
-                responses = responses.concat(data.responses)
-                errors = errors.concat(data.errors)
               })
-
-              this.dt.table.getCell(this.destCId).update({value: responses})
-              this.dt.table.getCell(this.errorCId).update({value: errors})
             })
+
+            Promise.all(responsePs)
+              .then((rawResponses) => {
+                const {
+                 responses,
+                 errors
+                } = rawResponses.reduce((acc, response) => {
+                  delete response.requestId
+                  if (response.status !== 200) {
+                    acc.errors.push(response)
+                  } else if (response.status === 202) {
+                    acc.errors.push(response)
+                  } else {
+                    acc.responses.push(response)
+                  }
+                  return acc
+                }, {responses: [], errors: []})
+
+                this.dt.table.getCell(this.destCId).update({value: responses})
+                this.dt.table.getCell(this.errorCId).update({value: errors})
+              })
           }
         })
     }
