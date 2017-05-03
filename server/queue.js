@@ -2,6 +2,9 @@ const config = require('../config')
 const FullContact = require('fullcontact')
 const apiKey = config.apiKey
 const fullcontact = new FullContact(apiKey)
+const rateLimit = require('function-rate-limit')
+
+const fullcontactRequest = rateLimit(config.fullContactLimit, 62000, fn => fn())
 
 class Q {
   constructor ({sdk, credentials, project, source, dest, error, sourceC, destC, errorC}) {
@@ -90,14 +93,16 @@ class Q {
             }
 
             const responsePs = val.map((email) => {
-              return new Promise((resolve, reject) => {
-                fullcontact.person.email(email, (err, response) => {
-                  if (err) {
-                    resolve({ status: err.status, errorMesssage: err.message, email })
-                  } else {
-                    response.email = email
-                    resolve(response)
-                  }
+              return new Promise(resolve => {
+                fullcontactRequest(() => {
+                  fullcontact.person.email(email, (err, response) => {
+                    if (err) {
+                      resolve({ status: err.status, errorMesssage: err.message, email })
+                    } else {
+                      response.email = email
+                      resolve(response)
+                    }
+                  })
                 })
               })
             })
@@ -136,14 +141,16 @@ class Q {
             }
 
             const responsePs = valC.map((companyAddr) => {
-              return new Promise((resolve, reject) => {
-                fullcontact.company.domain(companyAddr, (err, response) => {
-                  if (err) {
-                    resolve({ status: err.status, errorMessage: err.message, domain: companyAddr })
-                  } else {
-                    response.domain = companyAddr
-                    resolve(response)
-                  }
+              return new Promise(resolve => {
+                fullcontactRequest(() => {
+                  fullcontact.company.domain(companyAddr, (err, response) => {
+                    if (err) {
+                      resolve({ status: err.status, errorMessage: err.message, domain: companyAddr })
+                    } else {
+                      response.domain = companyAddr
+                      resolve(response)
+                    }
+                  })
                 })
               })
             })
