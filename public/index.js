@@ -1,3 +1,6 @@
+/* global $:false, fetch:false */
+/* eslint-env browser */
+
 var userProjects, selectedProject, selectedSource, selectedTarget, selectedError, selectedSourceCompany, selectedTargetCompany, selectedErrorCompany
 
 function isLoggedIn () {
@@ -5,23 +8,21 @@ function isLoggedIn () {
     .then((status) => status.success)
 }
 
-function request (url, options) { // options is optional
-  return fetch(url, Object.assign({}, options, { credentials: 'same-origin', headers: {'content-type': 'application/json'}})) // fetch is internal function
+function request (url, options) {
+  return fetch(url, Object.assign({}, options, {credentials: 'same-origin', headers: {'content-type': 'application/json'}}))
     .then(res => res.json())
     .catch(err => alert(err))
 }
 
 function getProjects () {
-  return request('/api/projects').then(function (projects) { return userProjects = projects })
-}
-
-function hideLogin () {
-  $('#login').hide()
-  $('#container').show()
+  return request('/api/projects').then(function (projects) {
+    userProjects = projects
+    return userProjects
+  })
 }
 
 function showLogin () {
-  $('#login').show().click(() => window.location.replace('/login')) // change url location of browser
+  $('#login').show().click(() => window.location.replace('/login'))
   $('#container').hide()
 }
 

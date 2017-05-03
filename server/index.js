@@ -9,7 +9,6 @@ const url = require('url')
 const Queue = require('./queue')
 const FluxSdk = require('flux-sdk-node')
 const sdk = new FluxSdk(config.flux.id, { clientSecret: config.flux.secret, fluxUrl: config.flux.url })
-let queue
 
 function generateRandomValue () {
   return crypto.randomBytes(24).toString('hex')
@@ -79,7 +78,7 @@ app.use('/api', (req, res, next) => {
 })
 
 app.post('/api/request', (req, res, next) => { // line 82, queue is assigned a value but never used. (side-effect)
-  queue = new Queue({sdk: sdk, user: req.user, project: req.body.project, source: req.body.source, dest: req.body.dest, error: req.body.error, sourceC: req.body.sourceC, destC: req.body.destC, errorC: req.body.errorC, credentials: req.session.credentials})
+  new Queue({sdk: sdk, user: req.user, project: req.body.project, source: req.body.source, dest: req.body.dest, error: req.body.error, sourceC: req.body.sourceC, destC: req.body.destC, errorC: req.body.errorC, credentials: req.session.credentials}) // eslint-disable-line no-new
   res.status(200).json({success: true})
 })
 

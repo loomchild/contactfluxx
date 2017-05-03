@@ -1,7 +1,5 @@
-const request = require('request')
 const config = require('../config')
 const promSeries = require('./promSeries')
-const util = require('util')
 const FullContact = require('fullcontact')
 const apiKey = config.apiKey
 const fullcontact = new FullContact(apiKey)
@@ -34,7 +32,8 @@ class Q {
   debounce (func, wait, immediate) {
     var timeout
     return function () {
-      var context = this, args = arguments
+      var context = this
+      var args = arguments
       var later = function () {
         timeout = null
         if (!immediate) func.apply(context, args)
@@ -63,19 +62,19 @@ class Q {
 
       if (!this.destId) {
         this.dt.table.createCell(this.dest, {description: this.dest, value: 'No data yet'})
-          .then((cell) => this.destId = cell.id)
+          .then((cell) => { this.destId = cell.id })
       }
       if (!this.destCId) {
         this.dt.table.createCell(this.destC, {description: this.destC, value: 'No data yet'})
-          .then((cell) => this.destCId = cell.id)
+          .then((cell) => { this.destCId = cell.id })
       }
       if (!this.errorId) {
         this.dt.table.createCell(this.error, {description: this.error, value: 'No errors yet!'})
-          .then((cell) => this.errorId = cell.id)
+          .then((cell) => { this.errorId = cell.id })
       }
       if (!this.errorCId) {
         this.dt.table.createCell(this.errorC, {description: this.errorC, value: 'No errors yet!'})
-          .then((cell) => this.errorCId = cell.id)
+          .then((cell) => { this.errorCId = cell.id })
       }
     })
   }
@@ -196,7 +195,7 @@ class Q {
 
     if (!this.dt.websocketOpen) {
       this.dt.websocketOpen = true
-      let ws = this.dt.table.openWebSocket(options)
+      this.dt.table.openWebSocket(options)
       this.dt.table.addWebSocketHandler(websocketRefHandler)
     }
   }
