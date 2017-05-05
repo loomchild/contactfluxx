@@ -1,8 +1,8 @@
 version: '2'
 services:
     main:
-        build: .
-        image: puffinrocks/contactfluxx
+        #build: .
+        image: jenca/contactfluxx
         ports:
             - 3000
         environment:
