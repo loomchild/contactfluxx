@@ -1,6 +1,6 @@
 module.exports = {
   env : 'development',
-  url: process.env.URL || "http://localhost:3000", //enter flux auth callback url here.
+  url: process.env.VIRTUAL_HOST || "http://localhost:3000", //enter flux auth callback url here.
   port: 3000,
   flux: {
     url: 'https://flux.io',
